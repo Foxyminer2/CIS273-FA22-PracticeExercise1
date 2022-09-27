@@ -1,42 +1,39 @@
 ﻿using System;
+using System.Reflection;
+using System.Text.RegularExpressions;
+
 namespace PracticeExercise1
 {
-	public class ArrayList : IList
-	{
+    public class ArrayList : IList
+    {
         private int[] array;
         private int length;
 
-		public ArrayList()
-		{
+        public ArrayList()
+        {
             array = new int[16];
             length = 0;
-		}
+        }
 
         /// <summary>
         /// Returns first element in list, null if empty.
         /// </summary>
         public int? First
         {
-            //get
-            //{
-            //    if (IsEmpty)
-            //    {
-            //        return null;
-            //    }
-            //    else
-            //    {
-            //        return array[0];
-            //    }
-            //}
-
             get => IsEmpty ? null : array[0];
         }
 
-        // TODO
+        // TODO Done
         /// <summary>
         /// Returns last element in list, null if empty.
         /// </summary>
-        public int? Last { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public int? Last
+        {
+            get => IsEmpty ? null : array[Length - 1];
+
+        }
+
+
 
         /// <summary>
         /// Returns true if list is has no elements; false otherwise.
@@ -48,14 +45,18 @@ namespace PracticeExercise1
         /// </summary>
         public int Length { get => length; }
 
-        // TODO fix capacity bug
+        // TODO fix capacity bug Done
         /// <summary>
         /// Adds given value to end of list.
         /// </summary>
         /// <param name="value"></param>
         public void Append(int value)
         {
-            if(Length == array.Length)
+
+            array.Concat(new int[] { value }).ToArray();
+
+
+            if (Length == array.Length)
             {
                 Resize();
             }
@@ -71,9 +72,9 @@ namespace PracticeExercise1
         /// <returns>true if value is in list; false otherwise</returns>
         public bool Contains(int value)
         {
-            for(int i=0; i < Length; i++)
+            for (int i = 0; i < Length; i++)
             {
-                if( array[i] == value)
+                if (array[i] == value)
                 {
                     return true;
                 }
@@ -88,9 +89,22 @@ namespace PracticeExercise1
         /// </summary>
         /// <param name="value"></param>
         /// <returns>Index of first element with value; -1 if element is not found</returns>
+        ///
+
+
         public int FirstIndexOf(int value)
         {
-            throw new NotImplementedException();
+
+            for (int i = 0; i < Length; i++)
+            {
+                if (array[i] == value)
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+
         }
 
         // TODO
@@ -102,7 +116,23 @@ namespace PracticeExercise1
         /// <param name="existingValue"></param>
         public void InsertAfter(int newValue, int existingValue)
         {
-            throw new NotImplementedException();
+            if (Length == array.Length)
+            {
+                Resize();
+            }
+
+
+            if (Contains(existingValue) == false)
+            {
+                Append(newValue);
+                
+            }
+            else
+            {
+                InsertAt(newValue, FirstIndexOf(existingValue) +1 );
+            }
+
+
         }
 
         // TODO
@@ -113,8 +143,28 @@ namespace PracticeExercise1
         /// <param name="index"></param>
         public void InsertAt(int value, int index)
         {
-            throw new NotImplementedException();
+            
+            // 0 - check if array list is full
+            if (Length == array.Length)
+            {
+                Resize();
+            }
+            // 0.5 - check range
+            if (index > Length || index < 0)
+            {
+                throw new IndexOutOfRangeException();
+                //what do i need to change here?
+            }
+            // 1 - shift right starting at index
+            ShiftRight(index);
+            // 2 - write new value at index
+            array[index] = value;
+            // 3 - increment length
+            length++;
+
+
         }
+
 
         /// <summary>
         /// Add value to beginning of list
@@ -159,7 +209,14 @@ namespace PracticeExercise1
         /// <param name="value">value of item to be removed</param>
         public void Remove(int value)
         {
-            throw new NotImplementedException();
+            int indexFirst = FirstIndexOf(value);
+            if ( indexFirst != -1)
+            {
+                RemoveAt(indexFirst);
+            }
+            
+            
+            
         }
 
         // TODO
@@ -169,12 +226,26 @@ namespace PracticeExercise1
         /// <param name="index"></param>
         public void RemoveAt(int index)
         {
+            if (IsEmpty == true)
+            {
+                throw new IndexOutOfRangeException();
+            }
+            if (index > Length -1 || index < 0)
+            {
+                throw new IndexOutOfRangeException();
+                
+            }
             ShiftLeft(index);
             length--;
         }
 
         public override string ToString()
         {
+            if (this.IsEmpty)
+            {
+                return "[]";
+            }
+
             string str = "[ ";
 
             for(int i=0; i < Length-1; i++)
